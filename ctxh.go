@@ -48,3 +48,23 @@ func NewHandlerAdapter(handler ContextHandler) *HandlerAdapter {
 func (a *HandlerAdapter) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	a.handler.ServeHTTP(a.ctx, w, req)
 }
+
+// ContextHandlerFuncWithError is an adapter func to allow a context handler
+// function which returns an AppError to be used as a ContextHandler. If f is
+// a function with the correct signature, ContextHandlerFuncWithError(f) is a
+// ContextHandler which calls f and writes the AppError if non-nil.
+type ContextHandlerFuncWithError func(context.Context, http.ResponseWriter, *http.Request) *AppError
+
+func (fn ContextHandlerFuncWithError) ServeHTTP(ctx context.Context, w http.ResponseWriter, req *http.Request) {
+	if appErr := fn(ctx, w, req); appErr != nil {
+		http.Error(w, appErr.Message, appErr.Code)
+	}
+}
+
+// AppError bundles error data and should only be used as a return type for
+// ContextHandlerFuncWithError functions.
+type AppError struct {
+	Error   error
+	Message string
+	Code    int
+}
