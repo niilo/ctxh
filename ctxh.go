@@ -29,24 +29,23 @@ func (f ContextHandlerFunc) ServeHTTP(ctx context.Context, w http.ResponseWriter
 	f(ctx, w, req)
 }
 
-// HandlerAdapter wraps a ContextHandler to implement the http.Handler
-// interface.
-type HandlerAdapter struct {
+// handler wraps a ContextHandler to implement the http.Handler interface.
+type handler struct {
 	ctx     context.Context
 	handler ContextHandler
 }
 
-// NewHandlerAdapter returns a http.Handler HandlerAdapter which wraps the
-// given ContextHandler and creates a background context.Context.
-func NewHandlerAdapter(handler ContextHandler) *HandlerAdapter {
-	return &HandlerAdapter{
+// NewHandler returns an http.Handler which wraps the given ContextHandler
+// and creates a background context.Context.
+func NewHandler(h ContextHandler) http.Handler {
+	return &handler{
 		ctx:     context.Background(),
-		handler: handler,
+		handler: h,
 	}
 }
 
-func (a *HandlerAdapter) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	a.handler.ServeHTTP(a.ctx, w, req)
+func (h *handler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	h.handler.ServeHTTP(h.ctx, w, req)
 }
 
 // ContextHandlerFuncWithError is an adapter func to allow a context handler
