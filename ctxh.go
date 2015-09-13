@@ -38,8 +38,14 @@ type handler struct {
 // NewHandler returns an http.Handler which wraps the given ContextHandler
 // and creates a background context.Context.
 func NewHandler(h ContextHandler) http.Handler {
+	return NewHandlerWithContext(context.Background(), h)
+}
+
+// NewHandlerWithContext returns an http.Handler which wraps the given context
+// and ContextHandler.
+func NewHandlerWithContext(ctx context.Context, h ContextHandler) http.Handler {
 	return &handler{
-		ctx:     context.Background(),
+		ctx:     ctx,
 		handler: h,
 	}
 }
