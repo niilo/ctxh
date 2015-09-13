@@ -7,14 +7,7 @@ import (
 )
 
 // ContextHandler defines a handler which receives a passed context.Context
-// with the standard ResponseWriter and Request. ServeHTTP should write
-// the reply headers and data to the ResponseWriter, cancel the ctx, and
-// then return.
-//
-// Use a HandlerAdapter to wrap a ContextHandler as a http.Handler for
-// compatability with ServeMux and middlewares. Middlewares which do not
-// pass context.Context should come strictly before or after those that do,
-// otherwise contexts will be lost.
+// with the standard ResponseWriter and Request.
 type ContextHandler interface {
 	ServeHTTP(context.Context, http.ResponseWriter, *http.Request)
 }
@@ -29,7 +22,11 @@ func (f ContextHandlerFunc) ServeHTTP(ctx context.Context, w http.ResponseWriter
 	f(ctx, w, req)
 }
 
-// handler wraps a ContextHandler to implement the http.Handler interface.
+// handler wraps a ContextHandler to implement the http.Handler interface for
+// compatability with ServeMux and middlewares.
+//
+// Middleswares which do not pass a ctx break the passing chain so place them
+// before or after chains of ContextHandlers.
 type handler struct {
 	ctx     context.Context
 	handler ContextHandler
