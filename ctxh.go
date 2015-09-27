@@ -70,3 +70,12 @@ type AppError struct {
 	Message string
 	Code    int
 }
+
+// NewAppError returns a new AppError.
+func NewAppError(err error, message string, code int) *AppError {
+	return &AppError{
+		Error:   err,
+		Message: message,
+		Code:    code,
+	}
+}
